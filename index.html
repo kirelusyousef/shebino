@@ -6,10 +6,9 @@
     <title>لوحة متابعة المسابقة الأسبوعية</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- html2canvas لتصدير الجدول والداشبورد كصورة -->
+    <!-- html2canvas لتصدير الداشبورد والجداول كصورة -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* تحسينات الإيماءات والسحب على الموبايل */
         body {
             -webkit-tap-highlight-color: transparent;
         }
@@ -24,7 +23,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-20 md:pb-8">
 
-    <!-- الهيدر الرئيسي (Desktop & Mobile) -->
+    <!-- الهيدر الرئيسي -->
     <header class="bg-white shadow-sm border-b sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-2">
             <h1 class="text-lg md:text-2xl font-bold text-slate-900 flex items-center gap-2 truncate">
@@ -35,7 +34,7 @@
             </button>
         </div>
         
-        <!-- التبويب للشاشات الكبيرة فقط (Desktop Navbar) -->
+        <!-- التبويب العلوي للديسك توب -->
         <div class="hidden md:flex max-w-7xl mx-auto px-4 gap-2 overflow-x-auto border-t">
             <button onclick="switchTab('screen-1')" id="btn-desktop-screen-1" class="tab-btn-desktop py-3 px-4 font-semibold text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">📊 الداشبورد والإحصائيات</button>
             <button onclick="switchTab('screen-2')" id="btn-desktop-screen-2" class="tab-btn-desktop py-3 px-4 font-semibold text-slate-500 hover:text-slate-700 whitespace-nowrap">🔍 نتائج الأسبوع التفصيلية</button>
@@ -49,7 +48,6 @@
         <!-- ================= الشاشة 1: الداشبورد والإحصائيات ================= -->
         <section id="screen-1" class="tab-content space-y-5">
             
-            <!-- هيدر الداشبورد + الفلتر + زر التصدير كصورة -->
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div class="w-full sm:w-auto">
                     <label class="block text-xs font-bold text-slate-500 mb-1">تصفية الداشبورد بالأسبوع:</label>
@@ -62,12 +60,12 @@
                 </button>
             </div>
 
-            <!-- الحاوية القابلة للتصدير كصورة -->
+            <!-- الحاوية المخصصة للتصدير -->
             <div id="dashboard-export-card" class="space-y-5 bg-slate-50 p-2 rounded-2xl">
                 <!-- كروت KPI الإحصائية -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                     <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100">
-                        <p class="text-slate-500 text-xs md:text-sm font-medium">الكنائس المشاركة</p>
+                        <p class="text-slate-500 text-xs md:text-sm font-medium">عدد الكنائس المشاركة</p>
                         <h3 id="stat-churches-count" class="text-2xl md:text-3xl font-extrabold text-blue-600 mt-1">0</h3>
                     </div>
                     <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100">
@@ -75,26 +73,26 @@
                         <h3 id="stat-total-participants" class="text-2xl md:text-3xl font-extrabold text-slate-800 mt-1">0</h3>
                     </div>
                     <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100">
-                        <p class="text-slate-500 text-xs md:text-sm font-medium">الفائزون بالفترة</p>
+                        <p class="text-slate-500 text-xs md:text-sm font-medium">إجمالي الفائزين</p>
                         <h3 id="stat-total-winners" class="text-2xl md:text-3xl font-extrabold text-emerald-600 mt-1">0</h3>
                     </div>
                     <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100">
-                        <p class="text-slate-500 text-xs md:text-sm font-medium">الفرق المشاركة</p>
+                        <p class="text-slate-500 text-xs md:text-sm font-medium">عدد المراحل المشاركة</p>
                         <h3 id="stat-teams-count" class="text-2xl md:text-3xl font-extrabold text-purple-600 mt-1">0</h3>
                     </div>
                 </div>
 
-                <!-- جدول ملخص الفرق والكنائس -->
+                <!-- جدول إحصائيات الكنائس المجمع -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="p-4 bg-slate-50 border-b font-bold text-slate-800 text-sm md:text-base">إحصائيات الفرق والكنائس</div>
+                    <div class="p-4 bg-slate-50 border-b font-bold text-slate-800 text-sm md:text-base">ملخص مشاركات الكنائس والمراحل</div>
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-right border-collapse min-w-[500px]">
                             <thead>
                                 <tr class="bg-slate-100/70 text-slate-600 text-xs md:text-sm">
-                                    <th class="p-3">اسم الكنيسة</th>
-                                    <th class="p-3">المرحلة / الفريق</th>
-                                    <th class="p-3 text-center">المشاركون</th>
-                                    <th class="p-3 text-center">الفائزون</th>
+                                    <th class="p-3.5">اسم الكنيسة</th>
+                                    <th class="p-3.5 text-center">عدد المراحل المشاركة</th>
+                                    <th class="p-3.5 text-center">إجمالي الأفراد المشاركين</th>
+                                    <th class="p-3.5 text-center">إجمالي الأفراد الفائزين</th>
                                 </tr>
                             </thead>
                             <tbody id="stats-table-body" class="divide-y divide-slate-100 text-xs md:text-sm text-slate-700">
@@ -124,7 +122,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1">الفريق</label>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">المرحلة / الفريق</label>
                         <select id="filter-s2-team" onchange="applyScreen2Filters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs md:text-sm outline-none focus:border-blue-500">
                             <option value="">كل الفرق</option>
                         </select>
@@ -152,7 +150,7 @@
                             <tr class="bg-slate-100/70 text-slate-600 text-xs md:text-sm">
                                 <th class="p-3.5">الاسم</th>
                                 <th class="p-3.5">الكنيسة</th>
-                                <th class="p-3.5">الفريق</th>
+                                <th class="p-3.5">المرحلة / الفريق</th>
                                 <th class="p-3.5">التاريخ والوقت</th>
                                 <th class="p-3.5">الدرجة</th>
                                 <th class="p-3.5">الحالة</th>
@@ -182,7 +180,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-1">الفريق</label>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">المرحلة / الفريق</label>
                     <select id="filter-s3-team" onchange="applyScreen3Filters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs md:text-sm outline-none focus:border-blue-500">
                         <option value="">كل الفرق</option>
                     </select>
@@ -231,7 +229,7 @@
                     </div>
 
                     <div id="export-tables-container" class="space-y-4">
-                        <!-- جداول مرتبة تلقائياً حسب الفريق -->
+                        <!-- جداول الأبطال مرتبة تلقائياً -->
                     </div>
                 </div>
             </div>
@@ -239,7 +237,7 @@
 
     </main>
 
-    <!-- شريط التنقل السفلي للموبايل (Mobile Bottom Navigation Bar) -->
+    <!-- شريط التنقل السفلي للموبايل -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 flex justify-around py-2 px-1 shadow-lg">
         <button onclick="switchTab('screen-1')" id="btn-mobile-screen-1" class="tab-btn-mobile flex flex-col items-center gap-0.5 text-blue-600 font-bold text-[10px]">
             <span class="text-lg">📊</span>
@@ -265,13 +263,33 @@
         let globalData = [];
         let currentSortMode = 'default';
 
+        // دالة تنظيف النصوص وتوحيد الأحرف العربية
+        function cleanText(text) {
+            if (!text) return "";
+            return String(text)
+                .trim()                                   // إزالة المسافات الزائدة من البداية والنهاية
+                .replace(/\s+/g, ' ')                     // إزالة المسافات المتعددة داخل النص
+                .replace(/[أإآ]/g, 'ا')                   // توحيد الألفات (أ، إ، آ -> ا)
+                .replace(/ى/g, 'ي')                       // توحيد الياء المتطرفة (ى -> ي)
+                .replace(/ؤ/g, 'ؤ')                       // الحفاظ على الواو المهموزة
+                .replace(/ئ/g, 'ئ');                      // الحفاظ على النبرة
+        }
+
         async function fetchData() {
             const btn = document.getElementById('refresh-btn');
             btn.innerHTML = '<span>جاري التحديث...</span> ⏳';
             
             try {
                 const response = await fetch(API_URL);
-                globalData = await response.json();
+                const rawData = await response.json();
+                
+                // تطبيق عملية تنظيف البيانات فور سحبها
+                globalData = rawData.map(item => ({
+                    ...item,
+                    name: cleanText(item.name),
+                    church: cleanText(item.church),
+                    team: cleanText(item.team)
+                }));
                 
                 calculateTopWinners();
                 populateDropdowns();
@@ -289,7 +307,7 @@
             }
         }
 
-        // الخوارزمية الخاصة باحتساب أفضل 20 فائزاً لكل أسبوع وفريق (درجة > 15 + وقت الأسرع)
+        // حساب الفائزين (أعلى 20 إجابة > 15 لكل فريق وأسبوع)
         function calculateTopWinners() {
             const groups = {};
             globalData.forEach(item => {
@@ -318,8 +336,8 @@
 
         function populateDropdowns() {
             const weeks = [...new Set(globalData.map(d => d.week))].sort((a,b)=>a-b);
-            const churches = [...new Set(globalData.map(d => d.church))].filter(Boolean);
-            const teams = [...new Set(globalData.map(d => d.team))].filter(Boolean);
+            const churches = [...new Set(globalData.map(d => d.church))].filter(Boolean).sort();
+            const teams = [...new Set(globalData.map(d => d.team))].filter(Boolean).sort();
             const months = [...new Set(globalData.map(d => d.month))].filter(Boolean);
 
             fillSelect('filter-s1-week', weeks, 'أسبوع ');
@@ -339,43 +357,54 @@
             select.value = currentVal;
         }
 
-        // رندر الداشبورد بالشاشة الأولى مع فلتر الأسبوع
+        // ================= رندر الداشبورد للشاشة الأولى =================
         function renderScreen1() {
             const selectedWeek = document.getElementById('filter-s1-week').value;
-            
             const filtered = globalData.filter(d => !selectedWeek || d.week == selectedWeek);
 
-            const uniqueChurches = new Set(filtered.map(d => d.church)).size;
-            const uniqueTeams = new Set(filtered.map(d => d.team)).size;
-            const totalWinners = filtered.filter(d => d.isWinner === "فائز").length;
-
-            document.getElementById('stat-churches-count').innerText = uniqueChurches;
-            document.getElementById('stat-total-participants').innerText = filtered.length;
-            document.getElementById('stat-total-winners').innerText = totalWinners;
-            document.getElementById('stat-teams-count').innerText = uniqueTeams;
-
-            const statsMap = {};
+            // تجميع البيانات بحسب الكنائس بدون تكرار
+            const churchesMap = {};
             filtered.forEach(d => {
-                const key = `${d.church}_${d.team}`;
-                if (!statsMap[key]) {
-                    statsMap[key] = { church: d.church, team: d.team, participants: 0, winners: 0 };
+                const churchName = d.church;
+                if (!churchesMap[churchName]) {
+                    churchesMap[churchName] = {
+                        name: churchName,
+                        teams: new Set(),
+                        participants: 0,
+                        winners: 0
+                    };
                 }
-                statsMap[key].participants++;
-                if (d.isWinner === "فائز") statsMap[key].winners++;
+                churchesMap[churchName].teams.add(d.team);
+                churchesMap[churchName].participants++;
+                if (d.isWinner === "فائز") {
+                    churchesMap[churchName].winners++;
+                }
             });
 
+            // حساب الإحصائيات العامة
+            const uniqueChurchesCount = Object.keys(churchesMap).length;
+            const uniqueTeamsCount = new Set(filtered.map(d => d.team)).size;
+            const totalWinnersCount = filtered.filter(d => d.isWinner === "فائز").length;
+
+            document.getElementById('stat-churches-count').innerText = uniqueChurchesCount;
+            document.getElementById('stat-total-participants').innerText = filtered.length;
+            document.getElementById('stat-total-winners').innerText = totalWinnersCount;
+            document.getElementById('stat-teams-count').innerText = uniqueTeamsCount;
+
+            // رندر الجدول الرئيسي للكنائس
             const tbody = document.getElementById('stats-table-body');
-            tbody.innerHTML = Object.values(statsMap).map(s => `
+            const sortedChurches = Object.values(churchesMap).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+            tbody.innerHTML = sortedChurches.map(c => `
                 <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-semibold text-slate-800">${s.church}</td>
-                    <td class="p-3 text-slate-600">${s.team}</td>
-                    <td class="p-3 text-center font-bold text-slate-800">${s.participants}</td>
-                    <td class="p-3 text-center text-emerald-600 font-bold">${s.winners}</td>
+                    <td class="p-3.5 font-bold text-slate-800">${c.name}</td>
+                    <td class="p-3.5 text-center font-semibold text-purple-600">${c.teams.size} مراحل</td>
+                    <td class="p-3.5 text-center font-bold text-slate-800">${c.participants}</td>
+                    <td class="p-3.5 text-center font-extrabold text-emerald-600">${c.winners}</td>
                 </tr>
             `).join('') || `<tr><td colspan="4" class="p-6 text-center text-slate-400">لا توجد بيانات لهذه الفترة</td></tr>`;
         }
 
-        // تصدير كارت الداشبورد كصورة
         function exportDashboardImage() {
             const card = document.getElementById('dashboard-export-card');
             html2canvas(card, { scale: 2 }).then(canvas => {
@@ -535,12 +564,10 @@
             });
         }
 
-        // دالة التنقل بين الشاشات المتوافقة مع الموبايل والديسك توب
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
 
-            // تحديث تصميم أزرار الديسك توب
             document.querySelectorAll('.tab-btn-desktop').forEach(btn => {
                 btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
                 btn.classList.add('text-slate-500');
@@ -551,7 +578,6 @@
                 activeDesktopBtn.classList.remove('text-slate-500');
             }
 
-            // تحديث تصميم أزرار الموبايل السفلية
             document.querySelectorAll('.tab-btn-mobile').forEach(btn => {
                 btn.classList.remove('text-blue-600', 'font-bold');
                 btn.classList.add('text-slate-400', 'font-medium');
