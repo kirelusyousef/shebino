@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -35,7 +35,6 @@
 
         <!-- ================= الشاشة 1: إحصائيات الكنائس والفرق ================= -->
         <section id="screen-1" class="tab-content space-y-6">
-            <!-- كروت KPI الإحصائية -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <p class="text-gray-500 text-sm font-medium">عدد الكنائس المشاركة</p>
@@ -55,7 +54,6 @@
                 </div>
             </div>
 
-            <!-- جدول ملخص الفرق والكنائس -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-4 bg-gray-50 border-b font-bold text-gray-700">إحصائيات الفرق والكنائس الأسبوعية</div>
                 <div class="overflow-x-auto">
@@ -78,25 +76,41 @@
 
         <!-- ================= الشاشة 2: نتائج الأسبوع التفصيلية ================= -->
         <section id="screen-2" class="tab-content hidden space-y-6">
-            <!-- الفلاتر -->
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">رقم الأسبوع</label>
-                    <select id="filter-s2-week" onchange="applyScreen2Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
-                        <option value="">كل الأسابيع</option>
-                    </select>
+            <!-- الفلاتر وأزرار الترتيب -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">رقم الأسبوع</label>
+                        <select id="filter-s2-week" onchange="applyScreen2Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
+                            <option value="">كل الأسابيع</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">اسم الكنيسة</label>
+                        <select id="filter-s2-church" onchange="applyScreen2Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
+                            <option value="">كل الكنائس</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">المرحلة / الفريق</label>
+                        <select id="filter-s2-team" onchange="applyScreen2Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
+                            <option value="">كل الفرق</option>
+                        </select>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">اسم الكنيسة</label>
-                    <select id="filter-s2-church" onchange="applyScreen2Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
-                        <option value="">كل الكنائس</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">المرحلة / الفريق</label>
-                    <select id="filter-s2-team" onchange="applyScreen2Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
-                        <option value="">كل الفرق</option>
-                    </select>
+
+                <!-- أزرار الترتيب المطلوبة -->
+                <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-100 items-center">
+                    <span class="text-xs font-bold text-gray-500 ml-2">ترتيب الجدول حسب:</span>
+                    <button onclick="setSorting('score-desc')" id="sort-score-btn" class="bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-600 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition border border-gray-200">
+                        📉 الدرجات (تنازلي)
+                    </button>
+                    <button onclick="setSorting('church-asc')" id="sort-church-btn" class="bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-600 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition border border-gray-200">
+                        📈 الكنائس (تصاعدي أ-ي)
+                    </button>
+                    <button onclick="setSorting('default')" id="sort-default-btn" class="bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-600 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition border border-gray-200">
+                        🔄 الترتيب الأصلي (الوقت)
+                    </button>
                 </div>
             </div>
 
@@ -125,7 +139,6 @@
 
         <!-- ================= الشاشة 3: التجميع الشهري (4 أسابيع) ================= -->
         <section id="screen-3" class="tab-content hidden space-y-6">
-            <!-- الفلاتر -->
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1">الشهر</label>
@@ -147,7 +160,6 @@
                 </div>
             </div>
 
-            <!-- جدول الأربعة أسابيع -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-right border-collapse text-sm">
@@ -183,7 +195,6 @@
                 </button>
             </div>
 
-            <!-- تصميم الكارت المخصص للتصدير -->
             <div class="flex justify-center">
                 <div id="winners-export-card" class="bg-white p-8 rounded-2xl shadow-lg border w-full max-w-4xl text-gray-800">
                     <div class="text-center border-b pb-6 mb-6">
@@ -192,7 +203,7 @@
                     </div>
 
                     <div id="export-tables-container" class="space-y-6">
-                        <!-- سينشأ هنا جداول مرتبة حسب الفريق تلقائياً -->
+                        <!-- جداول مرتبة حسب الفريق تلقائياً -->
                     </div>
 
                     <div class="mt-8 pt-4 border-t text-center text-xs text-gray-400">
@@ -205,12 +216,11 @@
     </main>
 
     <script>
-        // تم وضع رابط الـ Google Apps Script الخاص بك هنا مباشرة
         const API_URL = "https://script.google.com/macros/s/AKfycbzmdRsQQFgFYN2PygG_Nnp1ryO4gdIVs1T-wXo-i0fFZ5ClkT2lrfNeqwoxSP64izw/exec";
 
         let globalData = [];
+        let currentSortMode = 'default'; // وضع الترتيب الافتراضي
 
-        // دالة سحب البيانات المباشرة
         async function fetchData() {
             const btn = document.getElementById('refresh-btn');
             btn.innerHTML = '<span>جاري التحديث...</span> ⏳';
@@ -219,10 +229,7 @@
                 const response = await fetch(API_URL);
                 globalData = await response.json();
                 
-                // حساب الفائزين أسبوعياً (أعلى 20 إجابة > 15 لكل فريق وأسبوع)
                 calculateTopWinners();
-                
-                // تحديث الواجهات والخيارات
                 populateDropdowns();
                 renderScreen1();
                 applyScreen2Filters();
@@ -238,33 +245,33 @@
             }
         }
 
-        // حساب أعلى وأسرع 20 إجابة > 15 لكل أسبوع وفريق
+        // حساب الفائزين (تلقائياً حسب الفرق والدرجة > 15 والوقت)
         function calculateTopWinners() {
             const groups = {};
-            
-            // تجميع وتصنيف حسب الأسبوع والفريق
             globalData.forEach(item => {
                 const key = `${item.week}_${item.team}`;
                 if (!groups[key]) groups[key] = [];
                 groups[key].push(item);
             });
 
-            // تطبيق الشرط: درجة > 15 وأسرع 20 حسب id/الوقت
             Object.values(groups).forEach(group => {
-                const validEligibles = group
-                    .filter(x => Number(x.score) > 15)
-                    .sort((a, b) => a.id - b.id)
-                    .slice(0, 20);
-                
-                const winnerIds = new Set(validEligibles.map(x => x.id));
+                const validEligibles = group.filter(x => Number(x.score) > 15);
+                validEligibles.sort((a, b) => {
+                    if (Number(b.score) !== Number(a.score)) {
+                        return Number(b.score) - Number(a.score);
+                    }
+                    return a.id - b.id;
+                });
+
+                const top20Winners = validEligibles.slice(0, 20);
+                const winnerIds = new Set(top20Winners.map(x => x.id));
                 
                 group.forEach(item => {
-                    item.isWinner = winnerIds.has(item.id) ? "فائز" : "غير فائز";
+                    item.isWinner = (Number(item.score) > 15 && winnerIds.has(item.id)) ? "فائز" : "غير فائز";
                 });
             });
         }
 
-        // تعبئة قائمة القوائم المنسدلة (Dropdowns)
         function populateDropdowns() {
             const weeks = [...new Set(globalData.map(d => d.week))].sort((a,b)=>a-b);
             const churches = [...new Set(globalData.map(d => d.church))].filter(Boolean);
@@ -287,7 +294,6 @@
             select.value = currentVal;
         }
 
-        // ================= رندر الشاشة 1 =================
         function renderScreen1() {
             const uniqueChurches = new Set(globalData.map(d => d.church)).size;
             const uniqueTeams = new Set(globalData.map(d => d.team)).size;
@@ -298,7 +304,6 @@
             document.getElementById('stat-total-winners').innerText = totalWinners;
             document.getElementById('stat-teams-count').innerText = uniqueTeams;
 
-            // تجميع حسب الفريق والكنيسة
             const statsMap = {};
             globalData.forEach(d => {
                 const key = `${d.church}_${d.team}`;
@@ -320,17 +325,45 @@
             `).join('') || `<tr><td colspan="4" class="p-6 text-center text-gray-400">لا توجد بيانات</td></tr>`;
         }
 
-        // ================= رندر الشاشة 2 =================
+        // تغيير وضع الترتيب في الشاشة الثانية
+        function setSorting(mode) {
+            currentSortMode = mode;
+            
+            // تحديث تصميم الأزرار بصرياً
+            ['score-desc', 'church-asc', 'default'].forEach(m => {
+                const btn = document.getElementById(`sort-${m === 'default' ? 'default-btn' : (m === 'score-desc' ? 'score-btn' : 'church-btn')}`);
+                if (m === mode) {
+                    btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                    btn.classList.remove('bg-gray-100', 'text-gray-700');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                    btn.classList.add('bg-gray-100', 'text-gray-700');
+                }
+            });
+
+            applyScreen2Filters();
+        }
+
+        // تطبيق الفلاتر والترتيب على الشاشة الثانية
         function applyScreen2Filters() {
             const week = document.getElementById('filter-s2-week').value;
             const church = document.getElementById('filter-s2-church').value;
             const team = document.getElementById('filter-s2-team').value;
 
-            const filtered = globalData.filter(d => {
+            let filtered = globalData.filter(d => {
                 return (!week || d.week == week) &&
                        (!church || d.church == church) &&
                        (!team || d.team == team);
             });
+
+            // تطبيق الترتيب حسب الزر المختار
+            if (currentSortMode === 'score-desc') {
+                filtered.sort((a, b) => Number(b.score) - Number(a.score)); // الدرجات تنازلياً
+            } else if (currentSortMode === 'church-asc') {
+                filtered.sort((a, b) => (a.church || '').localeCompare(b.church || 'ar')); // الكنائس تصاعدياً (أ-ي)
+            } else {
+                filtered.sort((a, b) => a.id - b.id); // الترتيب الافتراضي (حسب وقت الإرسال)
+            }
 
             const tbody = document.getElementById('detailed-table-body');
             tbody.innerHTML = filtered.map(d => {
@@ -349,7 +382,6 @@
             }).join('') || `<tr><td colspan="7" class="p-6 text-center text-gray-400">لا توجد نتائج مطابقة للفلتر</td></tr>`;
         }
 
-        // ================= رندر الشاشة 3 =================
         function applyScreen3Filters() {
             const month = document.getElementById('filter-s3-month').value;
             const church = document.getElementById('filter-s3-church').value;
@@ -361,7 +393,6 @@
                        (!team || d.team == team);
             });
 
-            // تجميع نتائج كل طالب على مدار 4 أسابيع
             const usersMap = {};
             filtered.forEach(d => {
                 const key = `${d.name}_${d.phone}`;
@@ -396,7 +427,6 @@
             }).join('') || `<tr><td colspan="8" class="p-6 text-center text-gray-400">لا توجد بيانات تجميعية</td></tr>`;
         }
 
-        // ================= رندر الشاشة 4 =================
         function renderScreen4() {
             const usersMap = {};
             globalData.forEach(d => {
@@ -407,10 +437,8 @@
                 if (d.isWinner === "فائز") usersMap[key].totalWins++;
             });
 
-            // تصفية الفائزين بـ 3 أسابيع على الأقل
             const winners = Object.values(usersMap).filter(u => u.totalWins >= 3);
 
-            // تقسيم الفائزين بحسب الفريق
             const teamsMap = {};
             winners.forEach(w => {
                 if (!teamsMap[w.team]) teamsMap[w.team] = [];
@@ -443,7 +471,6 @@
             `).join('') || `<p class="text-center text-gray-400 py-6">لا يوجد فائزون حققوا 3 أسابيع فوز حتى الآن.</p>`;
         }
 
-        // تصدير الشاشة كصورة PNG
         function exportWinnersImage() {
             const card = document.getElementById('winners-export-card');
             html2canvas(card, { scale: 2 }).then(canvas => {
@@ -454,7 +481,6 @@
             });
         }
 
-        // التنقل بين التبويبات
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -468,7 +494,6 @@
             activeBtn.classList.remove('text-gray-500');
         }
 
-        // تشغيل الجلب التلقائي للبيانات عند فتح الصفحة
         fetchData();
     </script>
 </body>
