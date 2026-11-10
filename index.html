@@ -2,212 +2,236 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>لوحة متابعة المسابقة الأسبوعية</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- html2canvas لتصدير الجدول كصورة -->
+    <!-- html2canvas لتصدير الجدول والداشبورد كصورة -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* تحسينات الإيماءات والسحب على الموبايل */
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans min-h-screen">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-20 md:pb-8">
 
-    <!-- الهيدر الرئيسي وزر التحديث -->
-    <header class="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-4">
-            <h1 class="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <span>🏆</span> لوحة متابعة المسابقة الأسبوعية
+    <!-- الهيدر الرئيسي (Desktop & Mobile) -->
+    <header class="bg-white shadow-sm border-b sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-2">
+            <h1 class="text-lg md:text-2xl font-bold text-slate-900 flex items-center gap-2 truncate">
+                <span>🏆</span> <span class="truncate">مسابقة الكنيسة</span>
             </h1>
-            <button id="refresh-btn" onclick="fetchData()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition shadow flex items-center gap-2 text-sm">
-                <span>تحديث البيانات</span> 🔄
+            <button id="refresh-btn" onclick="fetchData()" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-4 py-2 rounded-xl font-medium transition shadow flex items-center gap-1.5 text-xs md:text-sm whitespace-nowrap">
+                <span>تحديث</span> 🔄
             </button>
         </div>
         
-        <!-- شريط التبويب بين الشاشات -->
-        <div class="container mx-auto px-4 flex gap-2 overflow-x-auto border-t">
-            <button onclick="switchTab('screen-1')" id="btn-screen-1" class="tab-btn py-3 px-4 font-semibold text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">📊 إحصائيات الكنائس والفرق</button>
-            <button onclick="switchTab('screen-2')" id="btn-screen-2" class="tab-btn py-3 px-4 font-semibold text-gray-500 hover:text-gray-700 whitespace-nowrap">🔍 نتائج الأسبوع التفصيلية</button>
-            <button onclick="switchTab('screen-3')" id="btn-screen-3" class="tab-btn py-3 px-4 font-semibold text-gray-500 hover:text-gray-700 whitespace-nowrap">📅 التجميع الشهري (4 أسابيع)</button>
-            <button onclick="switchTab('screen-4')" id="btn-screen-4" class="tab-btn py-3 px-4 font-semibold text-gray-500 hover:text-gray-700 whitespace-nowrap">📸 تصدير صورة الأبطال (3/4)</button>
+        <!-- التبويب للشاشات الكبيرة فقط (Desktop Navbar) -->
+        <div class="hidden md:flex max-w-7xl mx-auto px-4 gap-2 overflow-x-auto border-t">
+            <button onclick="switchTab('screen-1')" id="btn-desktop-screen-1" class="tab-btn-desktop py-3 px-4 font-semibold text-blue-600 border-b-2 border-blue-600 whitespace-nowrap">📊 الداشبورد والإحصائيات</button>
+            <button onclick="switchTab('screen-2')" id="btn-desktop-screen-2" class="tab-btn-desktop py-3 px-4 font-semibold text-slate-500 hover:text-slate-700 whitespace-nowrap">🔍 نتائج الأسبوع التفصيلية</button>
+            <button onclick="switchTab('screen-3')" id="btn-desktop-screen-3" class="tab-btn-desktop py-3 px-4 font-semibold text-slate-500 hover:text-slate-700 whitespace-nowrap">📅 التجميع الشهري (4 أسابيع)</button>
+            <button onclick="switchTab('screen-4')" id="btn-desktop-screen-4" class="tab-btn-desktop py-3 px-4 font-semibold text-slate-500 hover:text-slate-700 whitespace-nowrap">📸 تصدير صورة الأبطال (3/4)</button>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-8">
+    <main class="max-w-7xl mx-auto px-4 py-6">
 
-        <!-- ================= الشاشة 1: إحصائيات الكنائس والفرق ================= -->
-        <section id="screen-1" class="tab-content space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium">عدد الكنائس المشاركة</p>
-                    <h3 id="stat-churches-count" class="text-3xl font-extrabold text-blue-600 mt-2">0</h3>
+        <!-- ================= الشاشة 1: الداشبورد والإحصائيات ================= -->
+        <section id="screen-1" class="tab-content space-y-5">
+            
+            <!-- هيدر الداشبورد + الفلتر + زر التصدير كصورة -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="w-full sm:w-auto">
+                    <label class="block text-xs font-bold text-slate-500 mb-1">تصفية الداشبورد بالأسبوع:</label>
+                    <select id="filter-s1-week" onchange="renderScreen1()" class="w-full sm:w-48 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-semibold outline-none focus:border-blue-500">
+                        <option value="">كل الأسابيع</option>
+                    </select>
                 </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium">إجمالي المشاركين</p>
-                    <h3 id="stat-total-participants" class="text-3xl font-extrabold text-gray-800 mt-2">0</h3>
+                <button onclick="exportDashboardImage()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-4 py-2.5 rounded-xl text-xs md:text-sm font-semibold transition shadow flex items-center justify-center gap-2">
+                    <span>تصدير الداشبورد كصورة</span> 📸
+                </button>
+            </div>
+
+            <!-- الحاوية القابلة للتصدير كصورة -->
+            <div id="dashboard-export-card" class="space-y-5 bg-slate-50 p-2 rounded-2xl">
+                <!-- كروت KPI الإحصائية -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                    <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100">
+                        <p class="text-slate-500 text-xs md:text-sm font-medium">الكنائس المشاركة</p>
+                        <h3 id="stat-churches-count" class="text-2xl md:text-3xl font-extrabold text-blue-600 mt-1">0</h3>
+                    </div>
+                    <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100">
+                        <p class="text-slate-500 text-xs md:text-sm font-medium">إجمالي المشاركين</p>
+                        <h3 id="stat-total-participants" class="text-2xl md:text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+                    </div>
+                    <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100">
+                        <p class="text-slate-500 text-xs md:text-sm font-medium">الفائزون بالفترة</p>
+                        <h3 id="stat-total-winners" class="text-2xl md:text-3xl font-extrabold text-emerald-600 mt-1">0</h3>
+                    </div>
+                    <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100">
+                        <p class="text-slate-500 text-xs md:text-sm font-medium">الفرق المشاركة</p>
+                        <h3 id="stat-teams-count" class="text-2xl md:text-3xl font-extrabold text-purple-600 mt-1">0</h3>
+                    </div>
                 </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium">إجمالي الفائزين أسبوعياً</p>
-                    <h3 id="stat-total-winners" class="text-3xl font-extrabold text-green-600 mt-2">0</h3>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium">عدد الفرق المشاركة</p>
-                    <h3 id="stat-teams-count" class="text-3xl font-extrabold text-purple-600 mt-2">0</h3>
+
+                <!-- جدول ملخص الفرق والكنائس -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-4 bg-slate-50 border-b font-bold text-slate-800 text-sm md:text-base">إحصائيات الفرق والكنائس</div>
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-right border-collapse min-w-[500px]">
+                            <thead>
+                                <tr class="bg-slate-100/70 text-slate-600 text-xs md:text-sm">
+                                    <th class="p-3">اسم الكنيسة</th>
+                                    <th class="p-3">المرحلة / الفريق</th>
+                                    <th class="p-3 text-center">المشاركون</th>
+                                    <th class="p-3 text-center">الفائزون</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stats-table-body" class="divide-y divide-slate-100 text-xs md:text-sm text-slate-700">
+                                <tr><td colspan="4" class="p-6 text-center text-slate-400">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="p-4 bg-gray-50 border-b font-bold text-gray-700">إحصائيات الفرق والكنائس الأسبوعية</div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right border-collapse">
-                        <thead>
-                            <tr class="bg-gray-100/70 text-gray-600 text-sm">
-                                <th class="p-3.5">اسم الكنيسة</th>
-                                <th class="p-3.5">المرحلة / الفريق</th>
-                                <th class="p-3.5">عدد المشاركين</th>
-                                <th class="p-3.5">عدد الفائزين أسبوعياً</th>
-                            </tr>
-                        </thead>
-                        <tbody id="stats-table-body" class="divide-y divide-gray-100 text-sm text-gray-700">
-                            <tr><td colspan="4" class="p-6 text-center text-gray-400">جاري التحميل...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </section>
 
         <!-- ================= الشاشة 2: نتائج الأسبوع التفصيلية ================= -->
-        <section id="screen-2" class="tab-content hidden space-y-6">
-            <!-- الفلاتر وأزرار الترتيب -->
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <section id="screen-2" class="tab-content hidden space-y-5">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1">رقم الأسبوع</label>
-                        <select id="filter-s2-week" onchange="applyScreen2Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">الأسبوع</label>
+                        <select id="filter-s2-week" onchange="applyScreen2Filters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs md:text-sm outline-none focus:border-blue-500">
                             <option value="">كل الأسابيع</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1">اسم الكنيسة</label>
-                        <select id="filter-s2-church" onchange="applyScreen2Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">الكنيسة</label>
+                        <select id="filter-s2-church" onchange="applyScreen2Filters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs md:text-sm outline-none focus:border-blue-500">
                             <option value="">كل الكنائس</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1">المرحلة / الفريق</label>
-                        <select id="filter-s2-team" onchange="applyScreen2Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">الفريق</label>
+                        <select id="filter-s2-team" onchange="applyScreen2Filters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs md:text-sm outline-none focus:border-blue-500">
                             <option value="">كل الفرق</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- أزرار الترتيب المطلوبة -->
-                <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-100 items-center">
-                    <span class="text-xs font-bold text-gray-500 ml-2">ترتيب الجدول حسب:</span>
-                    <button onclick="setSorting('score-desc')" id="sort-score-btn" class="bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-600 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition border border-gray-200">
-                        📉 الدرجات (تنازلي)
+                <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-100 items-center">
+                    <span class="text-xs font-bold text-slate-500 ml-1">ترتيب حسب:</span>
+                    <button onclick="setSorting('score-desc')" id="sort-score-btn" class="bg-slate-100 hover:bg-blue-50 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition border border-slate-200">
+                        📉 الدرجة (تنازلي)
                     </button>
-                    <button onclick="setSorting('church-asc')" id="sort-church-btn" class="bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-600 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition border border-gray-200">
-                        📈 الكنائس (تصاعدي أ-ي)
+                    <button onclick="setSorting('church-asc')" id="sort-church-btn" class="bg-slate-100 hover:bg-blue-50 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition border border-slate-200">
+                        📈 الكنائس (تصاعدي)
                     </button>
-                    <button onclick="setSorting('default')" id="sort-default-btn" class="bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-600 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition border border-gray-200">
-                        🔄 الترتيب الأصلي (الوقت)
+                    <button onclick="setSorting('default')" id="sort-default-btn" class="bg-slate-100 hover:bg-blue-50 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition border border-slate-200">
+                        🔄 الأسبقية بالوقت
                     </button>
                 </div>
             </div>
 
-            <!-- الجدول التفصيلي -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right border-collapse">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-right border-collapse min-w-[650px]">
                         <thead>
-                            <tr class="bg-gray-100/70 text-gray-600 text-sm">
-                                <th class="p-3.5">اسم الولد</th>
+                            <tr class="bg-slate-100/70 text-slate-600 text-xs md:text-sm">
+                                <th class="p-3.5">الاسم</th>
                                 <th class="p-3.5">الكنيسة</th>
                                 <th class="p-3.5">الفريق</th>
-                                <th class="p-3.5">تاريخ الإرسال</th>
-                                <th class="p-3.5">توقيت الإرسال</th>
+                                <th class="p-3.5">التاريخ والوقت</th>
                                 <th class="p-3.5">الدرجة</th>
                                 <th class="p-3.5">الحالة</th>
                             </tr>
                         </thead>
-                        <tbody id="detailed-table-body" class="divide-y divide-gray-100 text-sm text-gray-700">
-                            <tr><td colspan="7" class="p-6 text-center text-gray-400">جاري التحميل...</td></tr>
+                        <tbody id="detailed-table-body" class="divide-y divide-slate-100 text-xs md:text-sm text-slate-700">
+                            <tr><td colspan="6" class="p-6 text-center text-slate-400">جاري التحميل...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- ================= الشاشة 3: التجميع الشهري (4 أسابيع) ================= -->
-        <section id="screen-3" class="tab-content hidden space-y-6">
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- ================= الشاشة 3: التجميع الشهري ================= -->
+        <section id="screen-3" class="tab-content hidden space-y-5">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">الشهر</label>
-                    <select id="filter-s3-month" onchange="applyScreen3Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">الشهر</label>
+                    <select id="filter-s3-month" onchange="applyScreen3Filters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs md:text-sm outline-none focus:border-blue-500">
                         <option value="">كل الشهور</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">الكنيسة</label>
-                    <select id="filter-s3-church" onchange="applyScreen3Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">الكنيسة</label>
+                    <select id="filter-s3-church" onchange="applyScreen3Filters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs md:text-sm outline-none focus:border-blue-500">
                         <option value="">كل الكنائس</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1">المرحلة / الفريق</label>
-                    <select id="filter-s3-team" onchange="applyScreen3Filters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">الفريق</label>
+                    <select id="filter-s3-team" onchange="applyScreen3Filters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs md:text-sm outline-none focus:border-blue-500">
                         <option value="">كل الفرق</option>
                     </select>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right border-collapse text-sm">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-right border-collapse text-xs md:text-sm min-w-[700px]">
                         <thead>
-                            <tr class="bg-gray-100/70 text-gray-600">
-                                <th class="p-3.5">الاسم</th>
-                                <th class="p-3.5">الكنيسة</th>
-                                <th class="p-3.5">الفريق</th>
-                                <th class="p-3.5 text-center">أسبوع 1</th>
-                                <th class="p-3.5 text-center">أسبوع 2</th>
-                                <th class="p-3.5 text-center">أسبوع 3</th>
-                                <th class="p-3.5 text-center">أسبوع 4</th>
-                                <th class="p-3.5 text-center">مرات الفوز</th>
+                            <tr class="bg-slate-100/70 text-slate-600">
+                                <th class="p-3">الاسم</th>
+                                <th class="p-3">الكنيسة</th>
+                                <th class="p-3 text-center">أسبوع 1</th>
+                                <th class="p-3 text-center">أسبوع 2</th>
+                                <th class="p-3 text-center">أسبوع 3</th>
+                                <th class="p-3 text-center">أسبوع 4</th>
+                                <th class="p-3 text-center">مرات الفوز</th>
                             </tr>
                         </thead>
-                        <tbody id="monthly-table-body" class="divide-y divide-gray-100 text-gray-700">
-                            <tr><td colspan="8" class="p-6 text-center text-gray-400">جاري التحميل...</td></tr>
+                        <tbody id="monthly-table-body" class="divide-y divide-slate-100 text-slate-700">
+                            <tr><td colspan="7" class="p-6 text-center text-slate-400">جاري التحميل...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- ================= الشاشة 4: تصدير صورة الفائزين ================= -->
-        <section id="screen-4" class="tab-content hidden space-y-6">
-            <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border">
+        <!-- ================= الشاشة 4: تصدير صورة الأبطال ================= -->
+        <section id="screen-4" class="tab-content hidden space-y-5">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-2xl shadow-sm border gap-3">
                 <div>
-                    <h2 class="font-bold text-gray-800">جدول أبطال المسابقة الشهري</h2>
-                    <p class="text-xs text-gray-500 mt-1">يظهر الطلاب الذين فازوا بـ 3 أسابيع على الأقل من أصل 4 أسابيع مرتبين حسب الفريق.</p>
+                    <h2 class="font-bold text-slate-800 text-sm md:text-base">جدول أبطال المسابقة الشهري</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">الطلاب الفائزون بـ 3 أسابيع أو أكثر من أصل 4</p>
                 </div>
-                <button onclick="exportWinnersImage()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium transition shadow flex items-center gap-2 text-sm">
+                <button onclick="exportWinnersImage()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-4 py-2 rounded-xl font-medium transition shadow flex items-center justify-center gap-1.5 text-xs md:text-sm whitespace-nowrap">
                     <span>تصدير كصورة PNG</span> 📸
                 </button>
             </div>
 
             <div class="flex justify-center">
-                <div id="winners-export-card" class="bg-white p-8 rounded-2xl shadow-lg border w-full max-w-4xl text-gray-800">
-                    <div class="text-center border-b pb-6 mb-6">
-                        <h1 class="text-2xl font-black text-blue-900">🏆 قائمة أبطال المسابقة الأسبوعية 🏆</h1>
-                        <p class="text-sm text-gray-500 mt-2">المتأهلون للفوز بـ 3 أسابيع أو أكثر من أصل 4 أسابيع</p>
+                <div id="winners-export-card" class="bg-white p-4 md:p-8 rounded-2xl shadow-lg border w-full max-w-4xl text-slate-800">
+                    <div class="text-center border-b pb-4 mb-4">
+                        <h1 class="text-lg md:text-2xl font-black text-blue-900">🏆 قائمة أبطال المسابقة الأسبوعية 🏆</h1>
+                        <p class="text-xs text-slate-500 mt-1">الفائزون بـ 3 أسابيع من أصل 4 أسابيع</p>
                     </div>
 
-                    <div id="export-tables-container" class="space-y-6">
-                        <!-- جداول مرتبة حسب الفريق تلقائياً -->
-                    </div>
-
-                    <div class="mt-8 pt-4 border-t text-center text-xs text-gray-400">
-                        تم التوليد تلقائياً بواسطة لوحة متابعة المسابقة الكنسية
+                    <div id="export-tables-container" class="space-y-4">
+                        <!-- جداول مرتبة تلقائياً حسب الفريق -->
                     </div>
                 </div>
             </div>
@@ -215,11 +239,31 @@
 
     </main>
 
+    <!-- شريط التنقل السفلي للموبايل (Mobile Bottom Navigation Bar) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 flex justify-around py-2 px-1 shadow-lg">
+        <button onclick="switchTab('screen-1')" id="btn-mobile-screen-1" class="tab-btn-mobile flex flex-col items-center gap-0.5 text-blue-600 font-bold text-[10px]">
+            <span class="text-lg">📊</span>
+            <span>الداشبورد</span>
+        </button>
+        <button onclick="switchTab('screen-2')" id="btn-mobile-screen-2" class="tab-btn-mobile flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]">
+            <span class="text-lg">🔍</span>
+            <span>النتائج</span>
+        </button>
+        <button onclick="switchTab('screen-3')" id="btn-mobile-screen-3" class="tab-btn-mobile flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]">
+            <span class="text-lg">📅</span>
+            <span>الشهري</span>
+        </button>
+        <button onclick="switchTab('screen-4')" id="btn-mobile-screen-4" class="tab-btn-mobile flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]">
+            <span class="text-lg">📸</span>
+            <span>الأبطال</span>
+        </button>
+    </nav>
+
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzmdRsQQFgFYN2PygG_Nnp1ryO4gdIVs1T-wXo-i0fFZ5ClkT2lrfNeqwoxSP64izw/exec";
 
         let globalData = [];
-        let currentSortMode = 'default'; // وضع الترتيب الافتراضي
+        let currentSortMode = 'default';
 
         async function fetchData() {
             const btn = document.getElementById('refresh-btn');
@@ -236,16 +280,16 @@
                 applyScreen3Filters();
                 renderScreen4();
                 
-                btn.innerHTML = '<span>تم التحديث بنجاح</span> ✓';
-                setTimeout(() => btn.innerHTML = '<span>تحديث البيانات</span> 🔄', 2000);
+                btn.innerHTML = '<span>تم التحديث</span> ✓';
+                setTimeout(() => btn.innerHTML = '<span>تحديث</span> 🔄', 2000);
             } catch (error) {
                 console.error(error);
                 alert("حدث خطأ أثناء سحب البيانات من Google Sheets");
-                btn.innerHTML = '<span>تحديث البيانات</span> 🔄';
+                btn.innerHTML = '<span>تحديث</span> 🔄';
             }
         }
 
-        // حساب الفائزين (تلقائياً حسب الفرق والدرجة > 15 والوقت)
+        // الخوارزمية الخاصة باحتساب أفضل 20 فائزاً لكل أسبوع وفريق (درجة > 15 + وقت الأسرع)
         function calculateTopWinners() {
             const groups = {};
             globalData.forEach(item => {
@@ -278,6 +322,7 @@
             const teams = [...new Set(globalData.map(d => d.team))].filter(Boolean);
             const months = [...new Set(globalData.map(d => d.month))].filter(Boolean);
 
+            fillSelect('filter-s1-week', weeks, 'أسبوع ');
             fillSelect('filter-s2-week', weeks, 'أسبوع ');
             fillSelect('filter-s2-church', churches);
             fillSelect('filter-s2-team', teams);
@@ -294,18 +339,23 @@
             select.value = currentVal;
         }
 
+        // رندر الداشبورد بالشاشة الأولى مع فلتر الأسبوع
         function renderScreen1() {
-            const uniqueChurches = new Set(globalData.map(d => d.church)).size;
-            const uniqueTeams = new Set(globalData.map(d => d.team)).size;
-            const totalWinners = globalData.filter(d => d.isWinner === "فائز").length;
+            const selectedWeek = document.getElementById('filter-s1-week').value;
+            
+            const filtered = globalData.filter(d => !selectedWeek || d.week == selectedWeek);
+
+            const uniqueChurches = new Set(filtered.map(d => d.church)).size;
+            const uniqueTeams = new Set(filtered.map(d => d.team)).size;
+            const totalWinners = filtered.filter(d => d.isWinner === "فائز").length;
 
             document.getElementById('stat-churches-count').innerText = uniqueChurches;
-            document.getElementById('stat-total-participants').innerText = globalData.length;
+            document.getElementById('stat-total-participants').innerText = filtered.length;
             document.getElementById('stat-total-winners').innerText = totalWinners;
             document.getElementById('stat-teams-count').innerText = uniqueTeams;
 
             const statsMap = {};
-            globalData.forEach(d => {
+            filtered.forEach(d => {
                 const key = `${d.church}_${d.team}`;
                 if (!statsMap[key]) {
                     statsMap[key] = { church: d.church, team: d.team, participants: 0, winners: 0 };
@@ -316,35 +366,42 @@
 
             const tbody = document.getElementById('stats-table-body');
             tbody.innerHTML = Object.values(statsMap).map(s => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-3.5 font-medium">${s.church}</td>
-                    <td class="p-3.5">${s.team}</td>
-                    <td class="p-3.5 font-bold">${s.participants}</td>
-                    <td class="p-3.5 text-green-600 font-bold">${s.winners}</td>
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-semibold text-slate-800">${s.church}</td>
+                    <td class="p-3 text-slate-600">${s.team}</td>
+                    <td class="p-3 text-center font-bold text-slate-800">${s.participants}</td>
+                    <td class="p-3 text-center text-emerald-600 font-bold">${s.winners}</td>
                 </tr>
-            `).join('') || `<tr><td colspan="4" class="p-6 text-center text-gray-400">لا توجد بيانات</td></tr>`;
+            `).join('') || `<tr><td colspan="4" class="p-6 text-center text-slate-400">لا توجد بيانات لهذه الفترة</td></tr>`;
         }
 
-        // تغيير وضع الترتيب في الشاشة الثانية
+        // تصدير كارت الداشبورد كصورة
+        function exportDashboardImage() {
+            const card = document.getElementById('dashboard-export-card');
+            html2canvas(card, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'إحصائيات-الداشبورد.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
         function setSorting(mode) {
             currentSortMode = mode;
-            
-            // تحديث تصميم الأزرار بصرياً
             ['score-desc', 'church-asc', 'default'].forEach(m => {
                 const btn = document.getElementById(`sort-${m === 'default' ? 'default-btn' : (m === 'score-desc' ? 'score-btn' : 'church-btn')}`);
                 if (m === mode) {
                     btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
-                    btn.classList.remove('bg-gray-100', 'text-gray-700');
+                    btn.classList.remove('bg-slate-100', 'text-slate-700');
                 } else {
                     btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
-                    btn.classList.add('bg-gray-100', 'text-gray-700');
+                    btn.classList.add('bg-slate-100', 'text-slate-700');
                 }
             });
 
             applyScreen2Filters();
         }
 
-        // تطبيق الفلاتر والترتيب على الشاشة الثانية
         function applyScreen2Filters() {
             const week = document.getElementById('filter-s2-week').value;
             const church = document.getElementById('filter-s2-church').value;
@@ -356,30 +413,28 @@
                        (!team || d.team == team);
             });
 
-            // تطبيق الترتيب حسب الزر المختار
             if (currentSortMode === 'score-desc') {
-                filtered.sort((a, b) => Number(b.score) - Number(a.score)); // الدرجات تنازلياً
+                filtered.sort((a, b) => Number(b.score) - Number(a.score));
             } else if (currentSortMode === 'church-asc') {
-                filtered.sort((a, b) => (a.church || '').localeCompare(b.church || 'ar')); // الكنائس تصاعدياً (أ-ي)
+                filtered.sort((a, b) => (a.church || '').localeCompare(b.church || 'ar'));
             } else {
-                filtered.sort((a, b) => a.id - b.id); // الترتيب الافتراضي (حسب وقت الإرسال)
+                filtered.sort((a, b) => a.id - b.id);
             }
 
             const tbody = document.getElementById('detailed-table-body');
             tbody.innerHTML = filtered.map(d => {
-                const badgeClass = d.isWinner === "فائز" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500";
+                const badgeClass = d.isWinner === "فائز" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500";
                 return `
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-3.5 font-semibold">${d.name}</td>
-                        <td class="p-3.5">${d.church}</td>
-                        <td class="p-3.5">${d.team}</td>
-                        <td class="p-3.5 text-gray-500">${d.date}</td>
-                        <td class="p-3.5 text-gray-500">${d.time}</td>
-                        <td class="p-3.5 font-bold">${d.score}</td>
-                        <td class="p-3.5"><span class="px-3 py-1 rounded-full text-xs font-bold ${badgeClass}">${d.isWinner}</span></td>
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3.5 font-semibold text-slate-800">${d.name}</td>
+                        <td class="p-3.5 text-slate-600">${d.church}</td>
+                        <td class="p-3.5 text-slate-600">${d.team}</td>
+                        <td class="p-3.5 text-slate-400 text-xs">${d.date} <br class="sm:hidden"/> ${d.time}</td>
+                        <td class="p-3.5 font-bold text-slate-900">${d.score}</td>
+                        <td class="p-3.5"><span class="px-2.5 py-1 rounded-full text-[10px] md:text-xs font-bold ${badgeClass}">${d.isWinner}</span></td>
                     </tr>
                 `;
-            }).join('') || `<tr><td colspan="7" class="p-6 text-center text-gray-400">لا توجد نتائج مطابقة للفلتر</td></tr>`;
+            }).join('') || `<tr><td colspan="6" class="p-6 text-center text-slate-400">لا توجد نتائج مطابقة</td></tr>`;
         }
 
         function applyScreen3Filters() {
@@ -407,24 +462,23 @@
             tbody.innerHTML = Object.values(usersMap).map(u => {
                 const renderWeek = (wNum) => {
                     const item = u.weeks[wNum];
-                    if (!item) return `<span class="text-gray-300">-</span>`;
-                    const color = item.isWinner === "فائز" ? "text-green-600 font-bold" : "text-gray-400";
-                    return `<span class="${color}">${item.score} (${item.isWinner})</span>`;
+                    if (!item) return `<span class="text-slate-300">-</span>`;
+                    const color = item.isWinner === "فائز" ? "text-emerald-600 font-bold" : "text-slate-400";
+                    return `<span class="${color}">${item.score}</span>`;
                 };
 
                 return `
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-3.5 font-semibold">${u.name}</td>
-                        <td class="p-3.5">${u.church}</td>
-                        <td class="p-3.5">${u.team}</td>
-                        <td class="p-3.5 text-center">${renderWeek(1)}</td>
-                        <td class="p-3.5 text-center">${renderWeek(2)}</td>
-                        <td class="p-3.5 text-center">${renderWeek(3)}</td>
-                        <td class="p-3.5 text-center">${renderWeek(4)}</td>
-                        <td class="p-3.5 text-center font-extrabold text-blue-600">${u.totalWins} أسابيع</td>
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-semibold text-slate-800">${u.name}</td>
+                        <td class="p-3 text-slate-600">${u.church}</td>
+                        <td class="p-3 text-center">${renderWeek(1)}</td>
+                        <td class="p-3 text-center">${renderWeek(2)}</td>
+                        <td class="p-3 text-center">${renderWeek(3)}</td>
+                        <td class="p-3 text-center">${renderWeek(4)}</td>
+                        <td class="p-3 text-center font-extrabold text-blue-600">${u.totalWins} أسابيع</td>
                     </tr>
                 `;
-            }).join('') || `<tr><td colspan="8" class="p-6 text-center text-gray-400">لا توجد بيانات تجميعية</td></tr>`;
+            }).join('') || `<tr><td colspan="7" class="p-6 text-center text-slate-400">لا توجد بيانات تجميعية</td></tr>`;
         }
 
         function renderScreen4() {
@@ -447,28 +501,28 @@
 
             const container = document.getElementById('export-tables-container');
             container.innerHTML = Object.keys(teamsMap).map(teamName => `
-                <div class="border rounded-xl p-4 bg-gray-50">
-                    <h3 class="font-bold text-blue-800 text-lg mb-3">مرحلة / فريق: ${teamName}</h3>
-                    <table class="w-full text-right border-collapse text-sm bg-white rounded-lg overflow-hidden shadow-sm">
+                <div class="border rounded-xl p-3 bg-slate-50">
+                    <h3 class="font-bold text-blue-800 text-sm md:text-base mb-2">مرحلة / فريق: ${teamName}</h3>
+                    <table class="w-full text-right border-collapse text-xs md:text-sm bg-white rounded-lg overflow-hidden shadow-sm">
                         <thead>
                             <tr class="bg-blue-600 text-white">
-                                <th class="p-2.5">الاسم</th>
-                                <th class="p-2.5">الكنيسة</th>
-                                <th class="p-2.5 text-center">عدد مرات الفوز</th>
+                                <th class="p-2">الاسم</th>
+                                <th class="p-2">الكنيسة</th>
+                                <th class="p-2 text-center">مرات الفوز</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-slate-100">
                             ${teamsMap[teamName].map(w => `
                                 <tr>
-                                    <td class="p-2.5 font-medium">${w.name}</td>
-                                    <td class="p-2.5 text-gray-600">${w.church}</td>
-                                    <td class="p-2.5 text-center font-bold text-green-600">🏆 ${w.totalWins} أسابيع</td>
+                                    <td class="p-2 font-medium">${w.name}</td>
+                                    <td class="p-2 text-slate-600">${w.church}</td>
+                                    <td class="p-2 text-center font-bold text-emerald-600">🏆 ${w.totalWins} أسابيع</td>
                                 </tr>
                             `).join('')}
                         </tbody>
                     </table>
                 </div>
-            `).join('') || `<p class="text-center text-gray-400 py-6">لا يوجد فائزون حققوا 3 أسابيع فوز حتى الآن.</p>`;
+            `).join('') || `<p class="text-center text-slate-400 py-6 text-xs md:text-sm">لا يوجد فائزون حققوا 3 أسابيع فوز حتى الآن.</p>`;
         }
 
         function exportWinnersImage() {
@@ -481,17 +535,32 @@
             });
         }
 
+        // دالة التنقل بين الشاشات المتوافقة مع الموبايل والديسك توب
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
-                btn.classList.add('text-gray-500');
-            });
-
             document.getElementById(tabId).classList.remove('hidden');
-            const activeBtn = document.getElementById(`btn-${tabId}`);
-            activeBtn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
-            activeBtn.classList.remove('text-gray-500');
+
+            // تحديث تصميم أزرار الديسك توب
+            document.querySelectorAll('.tab-btn-desktop').forEach(btn => {
+                btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+                btn.classList.add('text-slate-500');
+            });
+            const activeDesktopBtn = document.getElementById(`btn-desktop-${tabId}`);
+            if (activeDesktopBtn) {
+                activeDesktopBtn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                activeDesktopBtn.classList.remove('text-slate-500');
+            }
+
+            // تحديث تصميم أزرار الموبايل السفلية
+            document.querySelectorAll('.tab-btn-mobile').forEach(btn => {
+                btn.classList.remove('text-blue-600', 'font-bold');
+                btn.classList.add('text-slate-400', 'font-medium');
+            });
+            const activeMobileBtn = document.getElementById(`btn-mobile-${tabId}`);
+            if (activeMobileBtn) {
+                activeMobileBtn.classList.add('text-blue-600', 'font-bold');
+                activeMobileBtn.classList.remove('text-slate-400', 'font-medium');
+            }
         }
 
         fetchData();
