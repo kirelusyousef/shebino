@@ -69,7 +69,7 @@
                         <h3 id="stat-churches-count" class="text-2xl md:text-3xl font-extrabold text-blue-600 mt-1">0</h3>
                     </div>
                     <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100">
-                        <p class="text-slate-500 text-xs md:text-sm font-medium">إجمالي المشاركين</p>
+                        <p class="text-slate-500 text-xs md:text-sm font-medium">إجمالي المشاركين (معتمد)</p>
                         <h3 id="stat-total-participants" class="text-2xl md:text-3xl font-extrabold text-slate-800 mt-1">0</h3>
                     </div>
                     <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100">
@@ -84,7 +84,7 @@
 
                 <!-- جدول إحصائيات الكنائس المجمع -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="p-4 bg-slate-50 border-b font-bold text-slate-800 text-sm md:text-base">ملخص مشاركات الكنائس والمراحل</div>
+                    <div class="p-4 bg-slate-50 border-b font-bold text-slate-800 text-sm md:text-base">ملخص مشاركات الكنائس والمراحل (الإجابات الأولى المعتمدة)</div>
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-right border-collapse min-w-[500px]">
                             <thead>
@@ -263,39 +263,13 @@
         let globalData = [];
         let currentSortMode = 'default';
 
-        // دالة ذكية لتنظيف وتوحيد الأسماء (عربي وإنجليزي) وتوحيد المقاطع الثلاثية
-        function cleanName(nameStr) {
-            if (!nameStr) return "";
-            
-            // تنظيف المسافات الزائدة
-            let cleaned = String(nameStr).trim().replace(/\s+/g, ' ');
-            
-            // التحقق مما إذا كان الاسم باللغة الإنجليزية
-            const isEnglish = /^[A-Za-z\s]+$/.test(cleaned);
-            if (isEnglish) {
-                // تحويل كل كلمة لأول حرف كبير وباقي الحروف صغيرة لمنع التكرار (مثل mina -> Mina)
-                return cleaned.toLowerCase().split(' ')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
-            }
-            
-            // توحيد الحروف العربية (الهمزات والياءات)
-            cleaned = cleaned
-                .replace(/[أإآ]/g, 'ا')
-                .replace(/ى/g, 'ي');
-            
-            // توحيد مشكلة (ثنائي / ثلاثي / رباعي) بأخذ أول 3 مقاطع فقط للاسم المشابه
-            let parts = cleaned.split(' ');
-            if (parts.length >= 3) {
-                cleaned = `${parts[0]} ${parts[1]} ${parts[2]}`;
-            }
-            
-            return cleaned;
-        }
-
         function cleanText(text) {
             if (!text) return "";
-            return String(text).trim().replace(/\s+/g, ' ').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي');
+            return String(text)
+                .trim()
+                .replace(/\s+/g, ' ')
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/ى/g, 'ي');
         }
 
         async function fetchData() {
@@ -306,14 +280,34 @@
                 const response = await fetch(API_URL);
                 const rawData = await response.json();
                 
-                // تطبيق التنظيف الشامل وتوحيد الأسماء والفرق والكنائس
-                globalData = rawData.map(item => ({
+                // 1. تنظيف البيانات أولاً
+                let cleanedData = rawData.map(item => ({
                     ...item,
-                    name: cleanName(item.name),
+                    name: cleanText(item.name),
                     church: cleanText(item.church),
                     team: cleanText(item.team)
                 }));
+
+                // 2. تصفية واعتماد الإجابة الأولى فقط لكل شخص (حسب الاسم + رقم التليفون + الأسبوع) واستبعاد التكرارات
+                const uniqueSubmissionsMap = {};
                 
+                // ترتيب البيانات تصاعدياً حسب الـ id أو وقت الإرسال لضمان أخذ الإجابة الأولى الأقدم
+                cleanedData.sort((a, b) => a.id - b.id);
+
+                cleanedData.forEach(item => {
+                    // مفتاح فريد لكل شخص في الأسبوع الواحد (الاسم + التليفون + الأسبوع)
+                    const uniqueKey = `${item.name}_${item.phone}_${item.week}`;
+                    
+                    // إذا لم يتم تسجيل هذا الشخص من قبل في هذا الأسبوع، نقوم بحفظ إجابته (الأولى)
+                    if (!uniqueSubmissionsMap[uniqueKey]) {
+                        uniqueSubmissionsMap[uniqueKey] = item;
+                    }
+                    // لو تكرر التسجيل، يتم تجاهل الإجابة الثانية تماماً وكأنها لم تكن
+                });
+
+                // اعتماد البيانات المفلترة فقط
+                globalData = Object.values(uniqueSubmissionsMap);
+
                 calculateTopWinners();
                 populateDropdowns();
                 renderScreen1();
@@ -380,7 +374,6 @@
             select.value = currentVal;
         }
 
-        // ================= رندر الداشبورد للشاشة الأولى =================
         function renderScreen1() {
             const selectedWeek = document.getElementById('filter-s1-week').value;
             const filtered = globalData.filter(d => !selectedWeek || d.week == selectedWeek);
