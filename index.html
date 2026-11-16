@@ -266,10 +266,11 @@
         function cleanText(text) {
             if (!text) return "";
             return String(text)
-                .trim()
-                .replace(/\s+/g, ' ')
-                .replace(/[أإآ]/g, 'ا')
-                .replace(/ى/g, 'ي');
+                .replace(/[\r\n]+/g, ' ')                  // حذف أي سطر جديد (Enter) ووضع مسافة مكانه
+                .trim()                                   // إزالة المسافات الزائدة
+                .replace(/\s+/g, ' ')                     // توحيد المسافات المتعددة إلى مسافة واحدة
+                .replace(/[أإآ]/g, 'ا')                   // توحيد الألفات
+                .replace(/ى/g, 'ي');                      // توحيد الياءات
         }
 
         async function fetchData() {
