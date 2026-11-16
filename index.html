@@ -263,16 +263,39 @@
         let globalData = [];
         let currentSortMode = 'default';
 
-        // دالة تنظيف النصوص وتوحيد الأحرف العربية
+        // دالة ذكية لتنظيف وتوحيد الأسماء (عربي وإنجليزي) وتوحيد المقاطع الثلاثية
+        function cleanName(nameStr) {
+            if (!nameStr) return "";
+            
+            // تنظيف المسافات الزائدة
+            let cleaned = String(nameStr).trim().replace(/\s+/g, ' ');
+            
+            // التحقق مما إذا كان الاسم باللغة الإنجليزية
+            const isEnglish = /^[A-Za-z\s]+$/.test(cleaned);
+            if (isEnglish) {
+                // تحويل كل كلمة لأول حرف كبير وباقي الحروف صغيرة لمنع التكرار (مثل mina -> Mina)
+                return cleaned.toLowerCase().split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+            
+            // توحيد الحروف العربية (الهمزات والياءات)
+            cleaned = cleaned
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/ى/g, 'ي');
+            
+            // توحيد مشكلة (ثنائي / ثلاثي / رباعي) بأخذ أول 3 مقاطع فقط للاسم المشابه
+            let parts = cleaned.split(' ');
+            if (parts.length >= 3) {
+                cleaned = `${parts[0]} ${parts[1]} ${parts[2]}`;
+            }
+            
+            return cleaned;
+        }
+
         function cleanText(text) {
             if (!text) return "";
-            return String(text)
-                .trim()                                   // إزالة المسافات الزائدة من البداية والنهاية
-                .replace(/\s+/g, ' ')                     // إزالة المسافات المتعددة داخل النص
-                .replace(/[أإآ]/g, 'ا')                   // توحيد الألفات (أ، إ، آ -> ا)
-                .replace(/ى/g, 'ي')                       // توحيد الياء المتطرفة (ى -> ي)
-                .replace(/ؤ/g, 'ؤ')                       // الحفاظ على الواو المهموزة
-                .replace(/ئ/g, 'ئ');                      // الحفاظ على النبرة
+            return String(text).trim().replace(/\s+/g, ' ').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي');
         }
 
         async function fetchData() {
@@ -283,10 +306,10 @@
                 const response = await fetch(API_URL);
                 const rawData = await response.json();
                 
-                // تطبيق عملية تنظيف البيانات فور سحبها
+                // تطبيق التنظيف الشامل وتوحيد الأسماء والفرق والكنائس
                 globalData = rawData.map(item => ({
                     ...item,
-                    name: cleanText(item.name),
+                    name: cleanName(item.name),
                     church: cleanText(item.church),
                     team: cleanText(item.team)
                 }));
@@ -362,7 +385,6 @@
             const selectedWeek = document.getElementById('filter-s1-week').value;
             const filtered = globalData.filter(d => !selectedWeek || d.week == selectedWeek);
 
-            // تجميع البيانات بحسب الكنائس بدون تكرار
             const churchesMap = {};
             filtered.forEach(d => {
                 const churchName = d.church;
@@ -381,7 +403,6 @@
                 }
             });
 
-            // حساب الإحصائيات العامة
             const uniqueChurchesCount = Object.keys(churchesMap).length;
             const uniqueTeamsCount = new Set(filtered.map(d => d.team)).size;
             const totalWinnersCount = filtered.filter(d => d.isWinner === "فائز").length;
@@ -391,7 +412,6 @@
             document.getElementById('stat-total-winners').innerText = totalWinnersCount;
             document.getElementById('stat-teams-count').innerText = uniqueTeamsCount;
 
-            // رندر الجدول الرئيسي للكنائس
             const tbody = document.getElementById('stats-table-body');
             const sortedChurches = Object.values(churchesMap).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
 
